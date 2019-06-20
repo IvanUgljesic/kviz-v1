@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Exo+2|Modak" rel="stylesheet">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--vue js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="vendor/bootstrap.css">
+    <link rel="shortcut icon" type="image/x-icon" href="./vendor/logo.png" />
+    <title>Kviz</title>
+  </head>
+  <body>
+    <div class="mainbar container" id="app">
+    <!-- navs -->
+      <div class="container quizIndex" v-if="quizIndexShow">
+            <div class="header bg-danger">
+                <div class="container">
+                    <h1 class="display-1">Kviz</h1>
+                    <p class="lead">Proverite svoje znanje!!!</p>
+                </div>
+            </div>
+            <nav class="nav justify-content-center nav-pills flex-column flex-md-row">
+                <a class="nav-link active" href="#pocetna" data-toggle="tab">Početna</a>
+                <a class="nav-link" href="#pravilaKviza" data-toggle="tab">Pravila kviza</a>
+                <a class="nav-link" href="#Start" data-toggle="tab" @click="startOptions()">Start</a>
+                <a class="nav-link" href="#Kontakt" data-toggle="tab">Kontakt</a>
+                <a class="nav-link" id='scoreActive' href="#Highscore" data-toggle="tab" @click="highscore()">Highscore</a>
+            </nav>
+    
+            <div class="tab-content py-5">
+                <div class="tab-pane active" id="pocetna">
+                    <h3>Kviz</h3>
+                    <p>Kviz (engl. quiz) predstavlja jednu formu igre u kojoj takmičar ili grupa učesnika pokušava da da tačan odgovor na određena pitanja iz različitih oblasti znanja.</p>
+                    <p>Njegovi začeci postojali su još u doba Starog Rima. Sintagma Homo ludens koristi se da bi označila čoveka koji kao biće voli da se igra.</p>
+                    <p>Prvim učesnikom nekog kviza u istoriji uslovno se smatra Edip koji je odgovarao na Sfinginu zagonetku.</p>
+                    <br/>
+                    <div class="container text-muted">
+                
+                        <!-- cards -->
+                
+                        <div class="row">
+                            <div class="col-md-6 col-lg-3" v-for="(oblast,index) in oblasti" @mouseover="showAll[index]=true" @mouseleave="showAll[index]=false">
+                                <div class="card">
+                                    <div class="card-header">
+                                    <img class="card-img-top img-fluid" :src="'./img/'+[[index]]+'.png'">
+                                    </div>
+                                    <div class="card-block">
+                                        <h3 class="card-title" v-if="index!='knjizevnost'">{{index | upper}}</h3>
+                                        <h3 class="card-title" v-else>{{'Književnost' | upper}}</h3>
+                                        <p class="card-text" v-if="showAll[index]">{{oblast}} <br><br> <a target="_blank" :href="index=='knjizevnost'? wiki+'Književnost':wiki+index">Wikipedia.org</a></p>
+                                        <p class="card-text" v-else>{{oblast | textReduce}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end .container -->
+                </div>
+                <div class="tab-pane fade" id="pravilaKviza">
+                    <br><br><br>
+                    <p>10 pitanja iz različitih oblasti(sport, muzika, film, geografija...)</p><br>
+                    <p>10 sekundi za svaki odgovor</p><br>
+                    <p>"preostalo vreme" x 10 bodova za svaki tačan odgovor</p>
+                    <br><br><br><br><br><br>
+                </div>
+                <div class="tab-pane fade" id="Start">
+                  <div class="d-flex justify-content-center">
+                    <div class="col-md-4">
+                      <label for="inputState">Izaberi kategoriju</label>
+                      <select id="inputState" class="form-control">
+                        <option v-for="(oblast,index) in oblastiSelect" :value="index">{{oblast.kategorija}}</option>
+                      </select>
+                      <div class="d-inline-flex p-4">
+                        <button id='startQuizBtn' class="btn btn-danger" @click="startQuiz()">Startuj kviz =></button>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                    <div class="container text-muted">
+                        <!-- cards -->
+                        <div class="row">
+                            <div class="col-md-6 col-lg-3" v-for="(oblast,index) in oblasti" @mouseover="showAll[index]=true" @mouseleave="showAll[index]=false">
+                                <div class="card">
+                                    <div class="card-header">
+                                    <img class="card-img-top img-fluid" :src="'./img/'+[[index]]+'.png'">
+                                    </div>
+                                    <div class="card-block">
+                                        <h3 class="card-title" v-if="index!='knjizevnost'">{{index | upper}}</h3>
+                                        <h3 class="card-title" v-else>{{'Književnost' | upper}}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end .container -->
+                </div>
+                <div class="tab-pane fade" id="Kontakt">
+                  <div class="kontakt">
+                    <h3>Kontaktirajte nas: </h3>
+                    <br>
+                    <form>
+                      <div class="form-group">
+                        <label for="exampleInputEmail1">Vaša email adresa</label>
+                        <input v-on:input="validationOff()" name='kontaktEmail' type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="petar.petrovic@primer.npr" v-model="sendMail.senderEmail">
+                        <small id="emailHelp" class="form-text text-muted">Privatnost vaše email adrese ostaje zaštićena</small>
+                        <div class="invalid-feedback">Pogrešan unos</div>
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Text</label>
+                        <textarea class="form-control" rows="4" cols="50" v-model="sendMail.senderMessage"></textarea>
+                        <small id="emailHelp" class="form-text text-muted">Pitanja, sugestije, predlozi...</small>
+                      </div>
+                      <button type="button" class="btn btn-danger" @click="posaljiMail()">Pošalji</button>
+                    </form>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="Highscore">
+                  <div class="scoreShowSize">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Nickname</th>
+                          <th scope="col">Score</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(player,index) in scoreboard" :value="player.id">
+                          <th scope="row">{{index+1}}</th>
+                          <td>{{player.nickname}}</td>
+                          <td>{{player.score}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+        
+        
+        <div class="footer1">
+            <div class="card text-center">
+              <div class="card-header">
+                Kviz 2019
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Posetite nas na društvenim mrežama</h5>
+                <div class="jumbotron">
+                  <a href="#" class="fa fa-facebook"></a>
+                  <a href="#" class="fa fa-steam"></a>
+                  <a href="#" class="fa fa-github"></a>
+                </div>
+                  <a href="#" class="btn btn-danger">Vrh strane</a>
+              </div>
+              <div class="card-footer text-muted">
+                Projekat rađen na praksi u firmi <a target="_blank" href="http://www.enonsolutions.com/">Enon Solutions</a> &#9400; kviz
+              </div>
+            </div>
+        </div><!-- end.footer-->
+      </div><!-- end. quizIndex-->
+      
+      
+      <div class="quizStart" v-if="quizStartShow">
+        <div class="quizArea jumbotron">
+            <div class="oblast">
+              <h3>Kategorija: {{oblast}}</h3>
+            </div>
+            <div class="quizHeader">
+                <div class="timerArea">
+                  <p>Vreme:</p>
+                  <p>{{(Math.round(timer1*100)/100).toFixed(2)}}</p>
+                </div>
+                <div class="pointsArea">
+                  <p>Broj poena:</p>
+                  <p>{{osvojeniPoeni}}</p>
+                </div>
+                <div class="scorboardArea">
+                  <p>Pitanje:</p>
+                  <p>{{questionCounter+1}}/10</p>
+                </div>
+            </div>
+            <div class="questionArea">
+              <p>{{pitanja[questionCounter].pitanje}}</p>
+            </div>
+            <div class="answersArea">
+              <button type="button" class="btn btn-outline-secondary" @click="answer($event)" :value="pitanja[questionCounter].odg1">{{pitanja[questionCounter].odg1}}</button>
+              <button type="button" class="btn btn-outline-secondary" @click="answer($event)" :value="pitanja[questionCounter].odg2">{{pitanja[questionCounter].odg2}}</button>
+              <button type="button" class="btn btn-outline-secondary" @click="answer($event)" :value="pitanja[questionCounter].odg3">{{pitanja[questionCounter].odg3}}</button>
+              <button type="button" class="btn btn-outline-secondary" @click="answer($event)" :value="pitanja[questionCounter].odg4">{{pitanja[questionCounter].odg4}}</button>
+            </div>
+            <div class="nextQuestion">
+              <p v-if="nextQuestionTimeShow">Sledece pitanje za: {{timer}}</p>
+              <p v-if="endQuizShow">Više sreće drugi put!</p>
+            </div>
+        </div><!--end quizArea-->
+        
+        <div class="footer1">
+            <div class="card text-center">
+              <div class="card-header">
+                Kviz 2019
+              </div>
+              <div class="card-body">
+                  <button class="btn btn-danger" @click="pocetna()">Početna</button>
+              </div>
+              <div class="card-footer text-muted">
+                Projekat rađen na praksi u firmi <a target="_blank" href="http://www.enonsolutions.com/">Enon Solutions</a> &#9400; kviz
+              </div>
+            </div>
+        </div><!-- end.footer-->
+          <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Scoreboard</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>Ostvareni rezultat: {{osvojeniPoeni}}</p>
+                  <label for="inputEmail4">Nick:</label>
+                  <input name="nick" type="text" class="form-control" id="inputEmail4" placeholder="Nick">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="scoreExit()">Izađi</button>
+                  <button type="button" class="btn btn-primary" @click="scoreSave()">Upiši</button>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+  </div><!-- end .mainbar-->
+
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>  
+    <script src="https://www.gstatic.com/firebasejs/6.1.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.1.0/firebase-firestore.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

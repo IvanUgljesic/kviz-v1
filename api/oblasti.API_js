@@ -1,0 +1,1 @@
+{"GET":"var oblastiSQL='SELECT kategorija FROM kategorije;';\nvar oblasti=query(oblastiSQL);\nwrite('oblasti',oblasti);\n\nvar oblast=param(\"izabranaOblast\");\nvar pitanjaSQL='SELECT * FROM pitanja WHERE kategorija_id=? ORDER BY RAND() LIMIT 10;';\nvar pitanja=query(pitanjaSQL, oblast);\nwrite('pitanja', pitanja)\n"}
